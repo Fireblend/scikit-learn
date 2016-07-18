@@ -2,10 +2,10 @@ from bitarray import bitarray
 
 class Rule:
 
-    def __init__(self, dataset, target, current_class_value,
+    def __init__(self, dataset, current_class_value,
                 num_classes, num_instances):
         self.m_data = dataset
-        self.m_target = target
+        self.m_class_index = dataset.shape[1]
         self.m_consequent = current_class_value
         self.m_conditions = []
         self.m_coverage = bitarray([True] * len(m_data.len))
@@ -13,14 +13,13 @@ class Rule:
         self.m_num_instances = num_instances
         self.m_num_classes = num_classes
 
-
     def calculate_coverage(self, data_set_mapper):
         self.m_coverage = bitarray([True] * len(self.m_coverage.len))
         for condition in self.m_conditions:
             self.m_coverage = self.m_coverage & condition.get_coverage()
 
         for i in range(0, self.m_num__classes):
-            copy = data_set_mapper.get_bit_set(target, i)
+            copy = data_set_mapper.get_bit_set(self.m_class_index, i)
             copy = copy & self.m_coverage
             self.m_class_coverage[i] = copy.count()
 
@@ -43,7 +42,7 @@ class Rule:
             if new_coverage.count() == cardinality:
                 del self.m_conditions[i]
             else:
-                i++
+                i = i+1
 
     def extend(self, rule_condition):
         self.m_conditions.append(rule_condition)
@@ -64,7 +63,7 @@ class Rule:
         result = 0
         for condition in self.m_conditions:
             if condition.covers( instance ):
-                result++
+                result = result+1
         return result
 
     def get_partial_rule_coverage(self, instance):
@@ -87,13 +86,13 @@ class Rule:
                     self.m_conditions[j] = old.merge(selector)
                     del self.m_conditions[i]
                 else:
-                    i++
+                    i = i+1
 
     def get_size(self):
         return len(self.m_conditions)
 
     def to_string(self):
-        end = " => ( class = " + str(self.m_target[self.m_consequent]) + ")"
+        end = " => ( class = " + str(self.m_consequent) + ")"
 
         if len(self.m_conditions) == 0:
             return "{}" + end
@@ -103,7 +102,7 @@ class Rule:
 
         while True:
             output = output + self.m_conditions[i].to_string(self.m_data)
-            i++
+            i = i+1
             if i == len(self.m_conditions):
                 break
             output = output + "&"

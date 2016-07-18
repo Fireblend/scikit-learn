@@ -18,6 +18,9 @@ class Condition(six.with_metaclass(ABCMeta)):
     def covers_impl(self, value):
         pass
 
+    def or_op(self, coverage):
+        self.m_coverage = self.m_coverage | coverage
+
     def get_attribute(self):
         return self.m_attribute
 
